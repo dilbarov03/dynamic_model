@@ -1,6 +1,6 @@
 # yourapp/views.py
-import csv
-import random
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
@@ -15,6 +15,13 @@ from .utils import create_model
 class DynamicModelCreateAPIView(APIView):
     parser_classes = (MultiPartParser,)
     
+    
+    @swagger_auto_schema(
+        request_body=MyFileSerializer,
+        operation_summary="Upload CSV File",
+        operation_description="Endpoint to upload a file.",
+        responses={201: "Model created successfully, table name: ... , model name: ...", 400: "Unsupported file format"},
+    )
     def post(self, request, *args, **kwargs):
         serializer = MyFileSerializer(data=request.data)
         
