@@ -29,6 +29,7 @@ Successful response would be like:
 It returns the name of the table so you can check it from database:
 
 ![enter image description here](https://i.ibb.co/M864sRk/Screenshot-from-2023-11-27-20-02-39.png)
+
 As you can see it created table from your csv file.
 
 ## Feel free to contribute!
