@@ -28,7 +28,7 @@ class DynamicModelCreateAPIView(APIView):
             database_fields = { k:models.CharField(max_length=255) for k in fields}
              
             
-            model = create_model(f'DynamicModel_{random.randint(0, 100)}', database_fields,
+            model = create_model(f'{csv_data["filename"]}', database_fields,
                 options=None,
                 admin_opts=None,
                 app_label='common',
@@ -45,6 +45,6 @@ class DynamicModelCreateAPIView(APIView):
             models.AutoField()
                 
             
-            return Response({'message': f'Model created successfully, table: {model._meta.db_table}'}, status=201)
+            return Response({'message': f'Model created successfully, table name: {model._meta.db_table}, model name: {model.__name__}'}, status=201)
         else:
             return Response({'error': 'Unsupported file format'}, status=400)

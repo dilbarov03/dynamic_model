@@ -12,10 +12,20 @@ class MyFileSerializer(serializers.Serializer):
         from io import TextIOWrapper
         file = attrs['file']
         with TextIOWrapper(file, encoding='utf-8') as csv_file:
+            filename = csv_file.name[:-4]
+            
             csv_reader = csv.reader(csv_file)
+            
+            fields = next(csv_reader)
+            first_column = fields[0]
+            
+            # check if first column is sequence and in that case skip first column
+            if first_column in ('', 'id', 'Id', 'ID', 'pk', 'Pk', 'PK'):
+                fields = fields[1:]
+                rows = [row[1:] for row in list(csv_reader) if len(row)>1]
+            else:
+                rows = [row for row in list(csv_reader)]
         
-            fields = [field for field in next(csv_reader) if field != ''] 
-            rows = [row[1:] for row in list(csv_reader) if row]
             data = [dict(zip(fields, row)) for row in rows]
             
             if not all([len(row) == len(fields) for row in rows]):
@@ -28,6 +38,7 @@ class MyFileSerializer(serializers.Serializer):
                 'fields': fields,
                 'rows': rows,
                 'data': data,
+                'filename': filename,
             }
             
             return attrs
