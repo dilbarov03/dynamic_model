@@ -11,6 +11,11 @@ class MyFileSerializer(serializers.Serializer):
         # check if all rows have the same number of columns and has no empty fields
         from io import TextIOWrapper
         file = attrs['file']
+        
+        # check if file is csv
+        if file.name[-4:] != '.csv':
+            raise serializers.ValidationError('File must be CSV')
+        
         with TextIOWrapper(file, encoding='utf-8') as csv_file:
             filename = csv_file.name[:-4]
             

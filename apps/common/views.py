@@ -32,7 +32,7 @@ class DynamicModelCreateAPIView(APIView):
             fields = csv_data['fields']
             data = csv_data['data']
             
-            database_fields = { k:models.CharField(max_length=255) for k in fields}
+            database_fields = { k:models.CharField(max_length=255, null=True) for k in fields}
              
             
             model = create_model(f'{csv_data["filename"]}', database_fields,
