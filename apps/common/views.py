@@ -1,3 +1,50 @@
-from django.shortcuts import render
+# yourapp/views.py
+import csv
+import random
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser
+from django.db import models
+from django.contrib import admin
+from django.core.management import call_command
+from .serializers import MyFileSerializer
+from .utils import create_model
 
-# Create your views here.
+
+
+class DynamicModelCreateAPIView(APIView):
+    parser_classes = (MultiPartParser,)
+    
+    def post(self, request, *args, **kwargs):
+        serializer = MyFileSerializer(data=request.data)
+        
+        if serializer.is_valid(raise_exception=True):
+            
+            # Access the stored file contents from the 'csv_data' attribute
+            csv_data = serializer.validated_data['csv_data']
+            fields = csv_data['fields']
+            data = csv_data['data']
+            
+            database_fields = { k:models.CharField(max_length=255) for k in fields}
+             
+            
+            model = create_model(f'DynamicModel_{random.randint(0, 100)}', database_fields,
+                options=None,
+                admin_opts=None,
+                app_label='common',
+                module='common.models',
+            )
+            
+            call_command('makemigrations', '--noinput')
+            call_command('migrate')
+            
+            # insert data
+            for d in data:
+                model.objects.create(**d)
+                
+            models.AutoField()
+                
+            
+            return Response({'message': f'Model created successfully, table: {model._meta.db_table}'}, status=201)
+        else:
+            return Response({'error': 'Unsupported file format'}, status=400)
